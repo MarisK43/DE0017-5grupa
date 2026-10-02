@@ -1,0 +1,94 @@
+@startuml
+ title Futbola spēļu rezultātu prognozēšana — konceptuālais modelis
+ left to right direction
+ hide methods
+ hide circle
+ skinparam classAttributeIconSize 0
+ skinparam shadowing false
+
+ class "Lietotājs" as Lietotajs {
+   lietotājvārds
+   e-pasts
+   reģistrācijasDatums
+   loma: lietotājs / administrators
+ }
+
+ class "Komanda" as Komanda {
+   nosaukums
+ }
+
+ class "Spēle" as Spele {
+   datumsUnLaiks
+   statuss: plānota / notiek / pabeigta / atcelta
+   datuAtjaunošanasLaiks
+ }
+
+ class "Faktiskais rezultāts" as Rezultats {
+   mājiniekuVārti
+   viesuVārti
+   /iznākums: mājinieku uzvara / neizšķirts / viesu uzvara
+ }
+
+ class "Komandas statistika" as Statistika {
+   periodaSākums
+   periodaBeigas
+   spēļuSkaits
+   uzvaruSkaits
+   neizšķirtuSkaits
+   zaudējumuSkaits
+   gūtieVārti
+   ielaistieVārti
+   atjaunošanasLaiks
+ }
+
+ class "Prognoze" as Prognoze {
+   izveidesLaiks
+   prognozētaisIznākums: mājinieku uzvara / neizšķirts / viesu uzvara
+   mājiniekuUzvarasVarbūtība
+   neizšķirtaVarbūtība
+   viesuUzvarasVarbūtība
+   /pareizība: pareiza / nepareiza / nav novērtējama
+ }
+
+ Lietotajs "1" -- "0..*" Prognoze : pieprasa
+ Komanda "1" -- "0..*" Spele : spēlē kā mājinieki
+ Komanda "1" -- "0..*" Spele : spēlē kā viesi
+ Spele "1" -- "0..1" Rezultats : ir faktiskais rezultāts
+ Spele "1" -- "0..*" Prognoze : ir prognoze
+ Komanda "1" -- "0..*" Statistika : raksturo
+ Prognoze "0..*" -- "2" Statistika : balstās uz
+
+ note bottom of Spele
+   Mājinieku un viesu komanda atšķiras.
+   Pabeigtai spēlei ir viens faktiskais rezultāts.
+ end note
+
+ note bottom of Prognoze
+   Katras varbūtības vērtība ir [0; 1]; to summa ir 1.
+   Pareizību nosaka, salīdzinot prognozēto iznākumu
+   ar spēles faktisko iznākumu, kad tas ir zināms.
+   Iepriekšējo prognožu precizitāti aprēķina no
+   novērtējamām prognozēm: pareizās / visas novērtējamās.
+ end note
+
+ note bottom of Statistika
+   Pieņēmums: prognoze izmanto divus statistikas
+   apkopojumus — pa vienam katrai spēles komandai.
+   Tie atspoguļo prognozes izveidē pieejamos datus;
+   perioda beigas nepārsniedz prognozes izveides laiku.
+   Rādītāju kopums ir konkretizēts modeļa piedāvājumā.
+ end note
+
+ note top of Lietotajs
+   Administrators ir lietotājs ar papildu tiesībām
+   pievienot un atjaunināt spēļu datus.
+   Pieņēmums: katru prognozi pieprasa viens lietotājs.
+ end note
+
+ legend bottom
+   1 — tieši viens; 0..1 — neviens vai viens; 0..* — nulle vai vairāki
+   2 — tieši divi; / — atvasināts atribūts
+   Diagrammas un komandu salīdzināšana izmanto esošos datus.
+   Lietotāju sacensības un reitings nav iekļauti (Won't have).
+ endlegend
+@enduml
